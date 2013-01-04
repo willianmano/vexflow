@@ -226,7 +226,7 @@ Vex.Flow.Stave.prototype.addTrebleGlyph = function() {
 /**
  * All drawing functions below need the context to be set.
  */
-Vex.Flow.Stave.prototype.draw = function(context) {
+Vex.Flow.Stave.prototype.draw = function(context, color) {
   if (!this.context) throw new Vex.RERR("NoCanvasContext",
       "Can't draw stave without canvas context.");
 
@@ -234,13 +234,16 @@ Vex.Flow.Stave.prototype.draw = function(context) {
   var width = this.width;
   var x = this.x;
 
+  if (color)
+    this.context.fillStyle = color;
+  else 
+    this.context.fillStyle = 'rgba(0,0,0,.25)';// '#525252'; //COLOR MOD
   for (var line=0; line < num_lines; line++) {
-    var y = this.getYForLine(line);
 
-    if (this.options.line_config[line].visible) {
-      this.context.fillRect(x, y, width, 1);
-    }
+    var y = this.getYForLine(line);
+    this.context.fillRect(x, Math.round(y), width, 1);
   }
+  this.context.fillStyle = 'black'; //COLOR MOD: back to normal
 
   x = this.glyph_start_x;
   var bar_x_shift = 0;
@@ -252,7 +255,8 @@ Vex.Flow.Stave.prototype.draw = function(context) {
     bar_x_shift += glyph.getMetrics().width;
   }
   // Add padding after clef, time sig, key sig
-  if (bar_x_shift > 0) bar_x_shift += this.options.vertical_bar_width;
+  if (bar_x_shift > 0) bar_x_shift += this.options.vertical_bar_width + 10;
+
   // Draw the modifiers (bar lines, coda, segno, repeat brackets, etc.)
   for (var i = 0; i < this.modifiers.length; i++) {
     // Only draw modifier if it has a draw function
